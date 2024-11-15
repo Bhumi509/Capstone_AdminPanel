@@ -1,0 +1,26 @@
+/* src/index.css */
+/* Tailwind CSS imports */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Modal styles */
+.modal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  margin-right: -50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  max-width: 500px;
+  width: 100%;
+  outline: none;
+}
+
+.modal-overlay {
+  background-color: rgba(0, 0, 0, 0.75);
+}
