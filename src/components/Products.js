@@ -24,6 +24,15 @@ function Products() {
     image: null,
     imageUrl: "",
   });
+  const [role, setRole] = useState("");
+
+  useEffect(() => {
+    const storedUser = sessionStorage.getItem("user");
+    if (storedUser) {
+      const { role } = JSON.parse(storedUser);
+      setRole(role);
+    }
+  }, []);
 
   useEffect(() => {
     const categoriesRef = database.ref("categories");
@@ -56,11 +65,7 @@ function Products() {
               const storageRef = storage.ref(fileName);
               try {
                 imageUrl = await storageRef.getDownloadURL();
-              } catch (error) {
-                console.error(
-                  `Error fetching image for ${product.name}:`,
-                  error
-                );
+              } catch {
                 imageUrl = "https://via.placeholder.com/150";
               }
             }
@@ -195,12 +200,14 @@ function Products() {
               </option>
             ))}
         </select>
-        <button
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          onClick={() => openModal()}
-        >
-          Add Product
-        </button>
+        {role !== "viewer" && (
+          <button
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            onClick={() => openModal()}
+          >
+            Add Product
+          </button>
+        )}
       </div>
 
       {loading ? (
@@ -236,9 +243,11 @@ function Products() {
               <th className="py-3 px-4 text-left font-semibold text-sm bg-gray-700">
                 Tags
               </th>
-              <th className="py-3 px-4 text-center font-semibold text-sm bg-gray-700">
-                Actions
-              </th>
+              {role !== "viewer" && (
+                <th className="py-3 px-4 text-center font-semibold text-sm bg-gray-700">
+                  Actions
+                </th>
+              )}
             </tr>
           </thead>
           <tbody>
@@ -263,20 +272,22 @@ function Products() {
                 <td className="py-3 px-4">
                   {prod.tags ? prod.tags.join(", ") : ""}
                 </td>
-                <td className="py-3 px-4 flex justify-center space-x-2">
-                  <button
-                    className="text-blue-400 hover:text-blue-500 mx-2"
-                    onClick={() => openModal(prod, key)}
-                  >
-                    <FaEdit />
-                  </button>
-                  <button
-                    className="text-red-400 hover:text-red-500 mx-2"
-                    onClick={() => deleteProduct(selectedCategory, key)}
-                  >
-                    <FaTrash />
-                  </button>
-                </td>
+                {role !== "viewer" && (
+                  <td className="py-3 px-4 flex justify-center space-x-2">
+                    <button
+                      className="text-blue-400 hover:text-blue-500 mx-2"
+                      onClick={() => openModal(prod, key)}
+                    >
+                      <FaEdit />
+                    </button>
+                    <button
+                      className="text-red-400 hover:text-red-500 mx-2"
+                      onClick={() => deleteProduct(selectedCategory, key)}
+                    >
+                      <FaTrash />
+                    </button>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>

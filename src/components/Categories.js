@@ -15,6 +15,15 @@ function Categories() {
     image: null,
     imageUrl: "",
   });
+  const [role, setRole] = useState("");
+
+  useEffect(() => {
+    const storedUser = sessionStorage.getItem("user");
+    if (storedUser) {
+      const { role } = JSON.parse(storedUser);
+      setRole(role);
+    }
+  }, []);
 
   useEffect(() => {
     const categoriesRef = database.ref("categories");
@@ -32,11 +41,7 @@ function Categories() {
             const storageRef = storage.ref(fileName);
             try {
               imageUrl = await storageRef.getDownloadURL();
-            } catch (error) {
-              console.error(
-                `Error fetching image for ${category.name}:`,
-                error
-              );
+            } catch {
               imageUrl = "https://via.placeholder.com/150";
             }
           }
@@ -137,12 +142,14 @@ function Categories() {
     <div className="p-6 bg-gray-900 text-gray-100 min-h-screen">
       <h2 className="text-2xl font-bold mb-4">Categories</h2>
       <div className="flex items-center mb-4 space-x-4">
-        <button
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          onClick={() => openModal()}
-        >
-          Add Category
-        </button>
+        {role !== "viewer" && (
+          <button
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            onClick={() => openModal()}
+          >
+            Add Category
+          </button>
+        )}
       </div>
 
       {loading ? (
@@ -160,9 +167,11 @@ function Categories() {
               <th className="py-3 px-4 text-left font-semibold text-sm bg-gray-700">
                 Name
               </th>
-              <th className="py-3 px-4 text-center font-semibold text-sm bg-gray-700">
-                Actions
-              </th>
+              {role !== "viewer" && (
+                <th className="py-3 px-4 text-center font-semibold text-sm bg-gray-700">
+                  Actions
+                </th>
+              )}
             </tr>
           </thead>
           <tbody>
@@ -180,20 +189,22 @@ function Categories() {
                     />
                   </td>
                   <td className="py-3 px-4">{cat.name}</td>
-                  <td className="py-3 px-4 text-center">
-                    <button
-                      className="text-blue-400 hover:text-blue-500 mx-2"
-                      onClick={() => openModal(cat, key)}
-                    >
-                      <FaEdit />
-                    </button>
-                    <button
-                      className="text-red-400 hover:text-red-500 mx-2"
-                      onClick={() => deleteCategory(key)}
-                    >
-                      <FaTrash />
-                    </button>
-                  </td>
+                  {role !== "viewer" && (
+                    <td className="py-3 px-4 text-center">
+                      <button
+                        className="text-blue-400 hover:text-blue-500 mx-2"
+                        onClick={() => openModal(cat, key)}
+                      >
+                        <FaEdit />
+                      </button>
+                      <button
+                        className="text-red-400 hover:text-red-500 mx-2"
+                        onClick={() => deleteCategory(key)}
+                      >
+                        <FaTrash />
+                      </button>
+                    </td>
+                  )}
                 </tr>
               ))}
           </tbody>

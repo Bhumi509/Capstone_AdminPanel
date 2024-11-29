@@ -23,14 +23,20 @@ function FeaturedProducts() {
     image: null,
     imageUrl: "",
   });
+  const [role, setRole] = useState("");
 
-  // Fetch categories from the database
+  useEffect(() => {
+    const storedUser = sessionStorage.getItem("user");
+    if (storedUser) {
+      const { role } = JSON.parse(storedUser);
+      setRole(role);
+    }
+  }, []);
+
   useEffect(() => {
     const fetchCategories = async () => {
       const snapshot = await database.ref("categories").once("value");
       const data = snapshot.val();
-
-      // Ensure categories are an array of objects with names for display
       const categoryList = data
         ? Object.values(data).map((category) => category.name)
         : [];
@@ -39,7 +45,6 @@ function FeaturedProducts() {
     fetchCategories();
   }, []);
 
-  // Fetch featured products from the database
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
@@ -54,8 +59,7 @@ function FeaturedProducts() {
             const storageRef = storage.ref(fileName);
             try {
               imageUrl = await storageRef.getDownloadURL();
-            } catch (error) {
-              console.error(`Error fetching image for ${product.name}:`, error);
+            } catch {
               imageUrl = "https://via.placeholder.com/150";
             }
           }
@@ -170,12 +174,14 @@ function FeaturedProducts() {
     <div className="p-6 bg-gray-900 text-gray-100 min-h-screen">
       <h2 className="text-2xl font-bold mb-4">Featured Products</h2>
       <div className="flex items-center mb-4 space-x-4">
-        <button
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          onClick={() => openModal()}
-        >
-          Add Product
-        </button>
+        {role !== "viewer" && (
+          <button
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            onClick={() => openModal()}
+          >
+            Add Product
+          </button>
+        )}
       </div>
 
       {loading ? (
@@ -205,9 +211,11 @@ function FeaturedProducts() {
               <th className="py-3 px-4 text-left font-semibold text-sm bg-gray-700">
                 Reviews
               </th>
-              <th className="py-3 px-4 text-center font-semibold text-sm bg-gray-700">
-                Actions
-              </th>
+              {role !== "viewer" && (
+                <th className="py-3 px-4 text-center font-semibold text-sm bg-gray-700">
+                  Actions
+                </th>
+              )}
             </tr>
           </thead>
           <tbody>
@@ -230,20 +238,22 @@ function FeaturedProducts() {
                 </td>
                 <td className="py-3 px-4">{product.rating}</td>
                 <td className="py-3 px-4">{product.reviews}</td>
-                <td className="py-3 px-4 text-center">
-                  <button
-                    className="text-blue-400 hover:text-blue-500 mx-2"
-                    onClick={() => openModal(product, index)}
-                  >
-                    <FaEdit />
-                  </button>
-                  <button
-                    className="text-red-400 hover:text-red-500 mx-2"
-                    onClick={() => deleteProduct(index)}
-                  >
-                    <FaTrash />
-                  </button>
-                </td>
+                {role !== "viewer" && (
+                  <td className="py-3 px-4 text-center">
+                    <button
+                      className="text-blue-400 hover:text-blue-500 mx-2"
+                      onClick={() => openModal(product, index)}
+                    >
+                      <FaEdit />
+                    </button>
+                    <button
+                      className="text-red-400 hover:text-red-500 mx-2"
+                      onClick={() => deleteProduct(index)}
+                    >
+                      <FaTrash />
+                    </button>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>
