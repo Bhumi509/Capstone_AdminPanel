@@ -139,7 +139,7 @@ function Categories() {
   };
 
   return (
-    <div className="p-6 bg-gray-900 text-gray-100 min-h-screen">
+    <div className="p-6 text-gray-800 min-h-screen">
       <h2 className="text-2xl font-bold mb-4">Categories</h2>
       <div className="flex items-center mb-4 space-x-4">
         {role !== "viewer" && (
@@ -158,17 +158,17 @@ function Categories() {
           <span className="ml-2">Loading categories...</span>
         </div>
       ) : (
-        <table className="min-w-full bg-gray-800 text-gray-200 rounded-lg overflow-hidden">
+        <table className="min-w-full bg-pink-200 text-gray-800 rounded-lg overflow-hidden">
           <thead>
             <tr>
-              <th className="py-3 px-4 text-left font-semibold text-sm bg-gray-700">
+              <th className="py-3 px-4 text-left font-semibold text-sm bg-pink-400">
                 Image
               </th>
-              <th className="py-3 px-4 text-left font-semibold text-sm bg-gray-700">
+              <th className="py-3 px-4 text-left font-semibold text-sm bg-pink-400">
                 Name
               </th>
               {role !== "viewer" && (
-                <th className="py-3 px-4 text-center font-semibold text-sm bg-gray-700">
+                <th className="py-3 px-4 text-center font-semibold text-sm bg-pink-400">
                   Actions
                 </th>
               )}
@@ -179,7 +179,7 @@ function Categories() {
               Object.entries(categories).map(([key, cat]) => (
                 <tr
                   key={key}
-                  className="border-b border-gray-700 hover:bg-gray-700"
+                  className="border-b border-gray-700 hover:bg-pink-400"
                 >
                   <td className="py-3 px-4">
                     <img
@@ -192,13 +192,13 @@ function Categories() {
                   {role !== "viewer" && (
                     <td className="py-3 px-4 text-center">
                       <button
-                        className="text-blue-400 hover:text-blue-500 mx-2"
+                        className="text-gray-800 hover:text-gray-600 mx-2"
                         onClick={() => openModal(cat, key)}
                       >
                         <FaEdit />
                       </button>
                       <button
-                        className="text-red-400 hover:text-red-500 mx-2"
+                        className="text-red-600 hover:text-red-500 mx-2"
                         onClick={() => deleteCategory(key)}
                       >
                         <FaTrash />
@@ -218,20 +218,20 @@ function Categories() {
         className="modal"
         overlayClassName="modal-overlay"
       >
-        <div className="bg-gray-800 p-6 rounded-lg">
+        <div className="bg-pink-400 p-6 rounded-lg">
           <h2 className="text-xl font-bold mb-4 text-gray-100">
             {editing ? "Edit Category" : "Add Category"}
           </h2>
           <div className="space-y-4">
             <input
-              className="border p-2 w-full bg-gray-700 text-gray-200 rounded"
+              className="border p-2 w-full bg-pink-100 text-gray-800 rounded"
               name="name"
               value={categoryData.name}
               onChange={handleChange}
               placeholder="Category Name"
             />
             <input
-              className="border p-2 w-full bg-gray-700 text-gray-200 rounded"
+              className="border p-2 w-full bg-pink-100 text-gray-800 rounded"
               name="image"
               type="file"
               onChange={handleChange}
@@ -239,7 +239,7 @@ function Categories() {
           </div>
           <div className="mt-6 flex justify-end space-x-3">
             <button
-              className="bg-gray-600 text-gray-200 px-4 py-2 rounded hover:bg-gray-700"
+              className="bg-pink-100 text-gray-800 px-4 py-2 rounded hover:bg-pink-200"
               onClick={closeModal}
             >
               Cancel

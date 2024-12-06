@@ -1,21 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { getDatabase, ref, get } from "firebase/database";
 
-function Navbar({ setUser }) {
+function Navbar({ user, setUser }) {
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [localUser, setLocalUser] = useState(null);
-
-  useEffect(() => {
-    const storedUser = sessionStorage.getItem("user");
-    if (storedUser) {
-      const parsedUser = JSON.parse(storedUser);
-      setLocalUser(parsedUser);
-      setUser(parsedUser);
-    }
-  }, [setUser]);
 
   const handleSignIn = () => {
     const db = getDatabase();
@@ -38,8 +29,8 @@ function Navbar({ setUser }) {
               email: signedInUser.email,
             };
             sessionStorage.setItem("user", JSON.stringify(userData));
-            setLocalUser(userData);
             setUser(userData);
+            navigate("/");
             setIsModalOpen(false);
           } else {
             alert("Invalid email or password.");
@@ -56,8 +47,8 @@ function Navbar({ setUser }) {
 
   const handleLogOut = () => {
     sessionStorage.removeItem("user");
-    setLocalUser(null);
     setUser(null);
+    navigate("/");
   };
 
   return (
@@ -65,8 +56,10 @@ function Navbar({ setUser }) {
       <h2 className="text-2xl font-bold p-4">Admin Page</h2>
       <nav className="flex-1">
         <ul className="space-y-2">
-          <li className="p-4 hover:bg-pink-400 cursor-pointer">Dashboard</li>
-          {localUser && (
+          <li className="p-4 hover:bg-pink-400 cursor-pointer">
+            <Link to="/">Dashboard</Link>
+          </li>
+          {user && (
             <>
               <li className="p-4 hover:bg-pink-400 cursor-pointer">
                 <Link to="/products">Products</Link>
@@ -77,17 +70,15 @@ function Navbar({ setUser }) {
               <li className="p-4 hover:bg-pink-400 cursor-pointer">
                 <Link to="/featured">Featured</Link>
               </li>
-              <li className="p-4 hover:bg-pink-400 cursor-pointer">Order</li>
-              <li className="p-4 hover:bg-pink-400 cursor-pointer">Setting</li>
             </>
           )}
         </ul>
       </nav>
       <div className="p-4 mt-auto">
-        {localUser ? (
+        {user ? (
           <div>
             <p>
-              Signed in as <strong>{localUser.name}</strong> ({localUser.role})
+              Signed in as <strong>{user.name}</strong> ({user.role})
             </p>
             <button
               onClick={handleLogOut}
