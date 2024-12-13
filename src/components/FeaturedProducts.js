@@ -23,14 +23,20 @@ function FeaturedProducts() {
     image: null,
     imageUrl: "",
   });
+  const [role, setRole] = useState("");
 
-  // Fetch categories from the database
+  useEffect(() => {
+    const storedUser = sessionStorage.getItem("user");
+    if (storedUser) {
+      const { role } = JSON.parse(storedUser);
+      setRole(role);
+    }
+  }, []);
+
   useEffect(() => {
     const fetchCategories = async () => {
       const snapshot = await database.ref("categories").once("value");
       const data = snapshot.val();
-
-      // Ensure categories are an array of objects with names for display
       const categoryList = data
         ? Object.values(data).map((category) => category.name)
         : [];
@@ -39,7 +45,6 @@ function FeaturedProducts() {
     fetchCategories();
   }, []);
 
-  // Fetch featured products from the database
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
@@ -54,8 +59,7 @@ function FeaturedProducts() {
             const storageRef = storage.ref(fileName);
             try {
               imageUrl = await storageRef.getDownloadURL();
-            } catch (error) {
-              console.error(`Error fetching image for ${product.name}:`, error);
+            } catch {
               imageUrl = "https://via.placeholder.com/150";
             }
           }
@@ -167,15 +171,17 @@ function FeaturedProducts() {
   };
 
   return (
-    <div className="p-6 bg-gray-900 text-gray-100 min-h-screen">
+    <div className="p-6 text-gray-800 min-h-screen">
       <h2 className="text-2xl font-bold mb-4">Featured Products</h2>
       <div className="flex items-center mb-4 space-x-4">
-        <button
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          onClick={() => openModal()}
-        >
-          Add Product
-        </button>
+        {role !== "viewer" && (
+          <button
+            className="bg-pink-500 text-white px-4 py-2 rounded hover:bg-pink-400"
+            onClick={() => openModal()}
+          >
+            Add Product
+          </button>
+        )}
       </div>
 
       {loading ? (
@@ -184,37 +190,39 @@ function FeaturedProducts() {
           <span className="ml-2">Loading products...</span>
         </div>
       ) : (
-        <table className="min-w-full bg-gray-800 text-gray-200 rounded-lg overflow-hidden">
+        <table className="min-w-full bg-pink-200 text-gray-800 rounded-lg overflow-hidden">
           <thead>
             <tr>
-              <th className="py-3 px-4 text-left font-semibold text-sm bg-gray-700">
+              <th className="py-3 px-4 text-left font-semibold text-sm bg-pink-400">
                 Image
               </th>
-              <th className="py-3 px-4 text-left font-semibold text-sm bg-gray-700">
+              <th className="py-3 px-4 text-left font-semibold text-sm bg-pink-400">
                 Name
               </th>
-              <th className="py-3 px-4 text-left font-semibold text-sm bg-gray-700">
+              <th className="py-3 px-4 text-left font-semibold text-sm bg-pink-400">
                 Category
               </th>
-              <th className="py-3 px-4 text-left font-semibold text-sm bg-gray-700">
+              <th className="py-3 px-4 text-left font-semibold text-sm bg-pink-400">
                 Price
               </th>
-              <th className="py-3 px-4 text-left font-semibold text-sm bg-gray-700">
+              <th className="py-3 px-4 text-left font-semibold text-sm bg-pink-400">
                 Rating
               </th>
-              <th className="py-3 px-4 text-left font-semibold text-sm bg-gray-700">
+              <th className="py-3 px-4 text-left font-semibold text-sm bg-pink-400">
                 Reviews
               </th>
-              <th className="py-3 px-4 text-center font-semibold text-sm bg-gray-700">
-                Actions
-              </th>
+              {role !== "viewer" && (
+                <th className="py-3 px-4 text-center font-semibold text-sm bg-pink-400">
+                  Actions
+                </th>
+              )}
             </tr>
           </thead>
           <tbody>
             {featuredProducts.map((product, index) => (
               <tr
                 key={index}
-                className="border-b border-gray-700 hover:bg-gray-700"
+                className="border-b border-gray-700 hover:bg-pink-400"
               >
                 <td className="py-3 px-4">
                   <img
@@ -230,20 +238,22 @@ function FeaturedProducts() {
                 </td>
                 <td className="py-3 px-4">{product.rating}</td>
                 <td className="py-3 px-4">{product.reviews}</td>
-                <td className="py-3 px-4 text-center">
-                  <button
-                    className="text-blue-400 hover:text-blue-500 mx-2"
-                    onClick={() => openModal(product, index)}
-                  >
-                    <FaEdit />
-                  </button>
-                  <button
-                    className="text-red-400 hover:text-red-500 mx-2"
-                    onClick={() => deleteProduct(index)}
-                  >
-                    <FaTrash />
-                  </button>
-                </td>
+                {role !== "viewer" && (
+                  <td className="py-3 px-4 text-center">
+                    <button
+                      className="text-gray-800 hover:text-gray-600 mx-2"
+                      onClick={() => openModal(product, index)}
+                    >
+                      <FaEdit />
+                    </button>
+                    <button
+                      className="text-red-600 hover:text-red-500 mx-2"
+                      onClick={() => deleteProduct(index)}
+                    >
+                      <FaTrash />
+                    </button>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>
@@ -257,20 +267,20 @@ function FeaturedProducts() {
         className="modal"
         overlayClassName="modal-overlay"
       >
-        <div className="bg-gray-800 p-6 rounded-lg">
+        <div className="bg-pink-400 p-6 rounded-lg">
           <h2 className="text-xl font-bold mb-4 text-gray-100">
             {editing ? "Edit Product" : "Add Product"}
           </h2>
           <div className="space-y-4">
             <input
-              className="border p-2 w-full bg-gray-700 text-gray-200 rounded"
+              className="border p-2 w-full bg-pink-100 text-gray-800 rounded"
               name="name"
               value={productData.name}
               onChange={handleChange}
               placeholder="Product Name"
             />
             <select
-              className="border p-2 w-full bg-gray-700 text-gray-200 rounded"
+              className="border p-2 w-full bg-pink-100 text-gray-800 rounded"
               name="category"
               value={productData.category}
               onChange={handleChange}
@@ -283,7 +293,7 @@ function FeaturedProducts() {
               ))}
             </select>
             <input
-              className="border p-2 w-full bg-gray-700 text-gray-200 rounded"
+              className="border p-2 w-full bg-pink-100 text-gray-800 rounded"
               name="price"
               value={productData.price.amount}
               onChange={handleChange}
@@ -291,7 +301,7 @@ function FeaturedProducts() {
               type="number"
             />
             <input
-              className="border p-2 w-full bg-gray-700 text-gray-200 rounded"
+              className="border p-2 w-full bg-pink-100 text-gray-800 rounded"
               name="rating"
               value={productData.rating}
               onChange={handleChange}
@@ -300,7 +310,7 @@ function FeaturedProducts() {
               step="0.1"
             />
             <input
-              className="border p-2 w-full bg-gray-700 text-gray-200 rounded"
+              className="border p-2 w-full bg-pink-100 text-gray-800 rounded"
               name="reviews"
               value={productData.reviews}
               onChange={handleChange}
@@ -308,7 +318,7 @@ function FeaturedProducts() {
               type="number"
             />
             <input
-              className="border p-2 w-full bg-gray-700 text-gray-200 rounded"
+              className="border p-2 w-full bg-pink-100 text-gray-800 rounded"
               name="image"
               type="file"
               onChange={handleChange}
